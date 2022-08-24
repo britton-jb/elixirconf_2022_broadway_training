@@ -1,0 +1,2 @@
+defmodule VehicleService do
+end
