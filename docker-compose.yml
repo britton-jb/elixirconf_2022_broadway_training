@@ -1,0 +1,62 @@
+version: '2'
+services:
+  rabbitmq:
+    container_name: rabbit
+    image: rabbitmq:3.10.5
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  postgres:
+    image: debezium/postgres:13
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - pg-debezium-data:/var/lib/postgresql/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.3
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  kafka:
+    image: wurstmeister/kafka
+    depends_on: [ zookeeper ]
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_HOST_NAME=host.docker.internal
+
+  connect:
+    image: debezium/connect:1.4
+    depends_on: [ kafka ]
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=connect_configs
+      - OFFSET_STORAGE_TOPIC=connect_offsets
+      - STATUS_STORAGE_TOPIC=connect_statuses
+
+volumes:
+  pg-debezium-data:
+    name: broadway-pg13-data
+
+networks:
+  default:
+    name: elixirconf_2022_broadway_training
