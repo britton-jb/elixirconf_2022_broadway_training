@@ -10,6 +10,15 @@ defmodule NotificationService.Application do
     children = [
       # Start the Ecto repository
       NotificationService.Repo,
+      # Start the Telemetry supervisor
+      NotificationServiceWeb.Telemetry,
+      # Start the PubSub system
+      {Phoenix.PubSub, name: NotificationService.PubSub},
+      # Start the Endpoint (http/https)
+      NotificationServiceWeb.Endpoint,
+      # Start a worker by calling: NotificationService.Worker.start_link(arg)
+      # {NotificationService.Worker, arg}
+      NotificationService.Notifications.NotificationConsumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
