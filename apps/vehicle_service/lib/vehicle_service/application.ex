@@ -8,7 +8,8 @@ defmodule VehicleService.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      VehicleService.Repo
+      VehicleService.Repo,
+      VehicleService.NaiveVehicleRegistryConsumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
