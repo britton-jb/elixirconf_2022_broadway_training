@@ -10,7 +10,8 @@ defmodule VehicleService.Application do
     children = [
       VehicleService.Repo,
       # VehicleService.NaiveVehicleRegistryConsumer
-      VehicleService.VehicleRegistryConsumer
+      VehicleService.VehicleRegistryConsumer,
+      VehicleService.VehicleDrivingConsumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

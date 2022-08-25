@@ -34,6 +34,7 @@ defmodule VehicleService.MixProject do
       {:ecto, "~> 3.8"},
       {:ecto_sql, "~> 3.8"},
       {:jason, "~> 1.3"},
+      {:mimic, "~> 1.7", only: :test},
       {:postgrex, "~> 0.16"}
     ]
   end
