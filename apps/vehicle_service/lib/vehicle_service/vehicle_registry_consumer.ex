@@ -9,6 +9,7 @@ defmodule VehicleService.VehicleRegistryConsumer do
 
   @queue_name "vehicle_registry"
   @failed_queue "vehicle_registry.dlq"
+  @driving_queue_name "vehicle_journies"
 
   def start_link(_opts) do
     Logger.info("STARTING REGISTRY CONSUMER")
@@ -18,6 +19,7 @@ defmodule VehicleService.VehicleRegistryConsumer do
     {:ok, channel} = Channel.open(connection)
     Queue.declare(channel, @queue_name)
     Queue.declare(channel, @failed_queue)
+    Queue.declare(channel, @driving_queue_name)
 
     Broadway.start_link(__MODULE__,
       name: VehicleService.VehicleRegistryConsumer,
@@ -55,10 +57,21 @@ defmodule VehicleService.VehicleRegistryConsumer do
     Logger.debug("Batcher: #{inspect(batcher)}")
     Logger.debug("Batch Info: #{inspect(batch_info)}")
 
-    {:ok, _vehicles} =
+    {:ok, vehicles} =
       messages
       |> Enum.map(& &1.data)
       |> Vehicles.bulk_insert()
+
+    {:ok, connection} = Connection.open()
+    {:ok, channel} = Channel.open(connection)
+
+    vehicles
+    |> Enum.map(& &1.id)
+    |> Enum.each(fn vehicle_id ->
+      Basic.publish(channel, "", @driving_queue_name, vehicle_id)
+    end)
+
+    Connection.close(connection)
 
     messages
   end
