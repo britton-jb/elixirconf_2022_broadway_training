@@ -1,8 +1,27 @@
 defmodule CsvReader do
-  # Implement CsvReader.read_csv/0
-  #   Establish a connection to RabbitMQ
-  #   Open up, and iterate over, the vehicles.csv in the project root
-  #   Convert each row to a JSON object
-  #   Publish each row, one by one, to a queue called “vehicle_registry”
-  #   https://hexdocs.pm/amqp/readme.html
+  alias AMQP.{Basic, Channel, Connection, Queue}
+
+  require Logger
+
+  @queue_name "vehicle_registry"
+
+  def read_csv do
+    {:ok, connection} = Connection.open()
+    {:ok, channel} = Channel.open(connection)
+    Queue.declare(channel, @queue_name)
+
+    "../../../vehicles.csv"
+    |> Path.expand(__DIR__)
+    |> File.stream!()
+    |> CSV.decode(headers: true)
+    |> Enum.each(fn
+      {:ok, vehicle_row} ->
+        Basic.publish(channel, "", @queue_name, Jason.encode!(vehicle_row))
+
+      error ->
+        Logger.error("Error while trying to read csv row: #{inspect(error)}")
+    end)
+
+    AMQP.Connection.close(connection)
   end
+end
