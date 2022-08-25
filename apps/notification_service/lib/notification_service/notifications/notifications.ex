@@ -4,6 +4,14 @@ defmodule NotificationService.Notifications do
   alias NotificationService.Notifications.Notification
   alias NotificationService.Repo
 
+  def by_idempotency_key(idempotency_keys) when is_list(idempotency_keys) do
+    Notification
+    |> where([n], n.idempotency_key in ^idempotency_keys)
+    |> Repo.all()
+  end
+
+  def by_idempotency_key(idempotency_key), do: by_idempotency_key([idempotency_key])
+
   def insert_all(notification_maps) do
     now =
       NaiveDateTime.utc_now()
@@ -18,6 +26,13 @@ defmodule NotificationService.Notifications do
       end)
 
     Repo.insert_all(Notification, notification_maps)
+  end
+
+  def delete_all_by_idempotency_key(idempotency_keys) do
+    Notification
+    |> where([n], n.idempotency_key in ^idempotency_keys)
+    |> where([n], n.type == :vehicle)
+    |> Repo.delete_all()
   end
 
   def send_notification(_notification) do
