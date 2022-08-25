@@ -1,0 +1,2 @@
+defmodule NotificationService.Notifications.NotificationConsumer do
+end
