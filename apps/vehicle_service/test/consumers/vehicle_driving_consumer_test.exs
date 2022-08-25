@@ -28,4 +28,9 @@ defmodule VehicleService.VehicleDrivingConsumerTest do
 
     assert Repo.aggregate(Vehicle, :count) == 1
   end
+
+  # TODO: Use mimic to ensure we're hitting all of these:
+  # TODO: Add test for when VehicleService.Journies.is_destination_reached/1 returns true that we go to the :journey_complete batcher
+  # TODO: Add test for when VehicleService.Journies.increment_step/1 returns {-11, -11} that we go to the :out_of_bounds batcher
+  # TODO: Add test for when VehicleService.Journies.is_destination_reached/1 returns false that we go to the :driving batcher
 end
