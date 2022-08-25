@@ -20,4 +20,9 @@ defmodule VehicleService.Vehicles do
   def all() do
     Repo.all(Vehicle)
   end
+
+  def bulk_insert(vehicle_maps) do
+    {_rows, vehicles} = Repo.insert_all(Vehicle, vehicle_maps, returning: true)
+    {:ok, vehicles}
+  end
 end

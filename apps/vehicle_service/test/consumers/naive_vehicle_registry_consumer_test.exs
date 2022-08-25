@@ -6,6 +6,7 @@ defmodule VehicleService.NaiveVehicleRegistryConsumerTest do
   alias VehicleService.{Repo, Vehicle, NaiveVehicleRegistryConsumer}
 
   setup do
+    start_supervised!(NaiveVehicleRegistryConsumer)
     message = Jason.encode!(%{start_x: 0, start_y: 0})
     {:ok, %{message: message}}
   end
