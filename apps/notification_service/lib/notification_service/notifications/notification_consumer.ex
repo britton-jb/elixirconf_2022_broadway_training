@@ -112,5 +112,7 @@ defmodule NotificationService.Notifications.NotificationConsumer do
     Enum.each(messages, fn message ->
       Notifications.Publisher.publish(@retry_queue, message)
     end)
+
+    messages
   end
 end
