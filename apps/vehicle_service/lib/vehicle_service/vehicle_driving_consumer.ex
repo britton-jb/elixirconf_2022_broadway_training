@@ -112,7 +112,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
     vehicles
     |> Enum.map(& &1.id)
     |> Enum.each(fn vehicle_id ->
-      Basic.publish(channel, "", queue_name(), vehicle_id)
+      Basic.publish(channel, "", queue_name(), "#{vehicle_id}")
     end)
 
     Connection.close(connection)
@@ -128,7 +128,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
     messages
     |> Enum.map(fn %Message{data: %Vehicle{id: vehicle_id}} -> vehicle_id end)
     |> Enum.each(fn vehicle_id ->
-      Basic.publish(channel, "", queue_name(), vehicle_id)
+      Basic.publish(channel, "", queue_name(), "#{vehicle_id}")
     end)
 
     Connection.close(connection)
