@@ -9,7 +9,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
   alias VehicleService.{Vehicles, Vehicle, Journies}
   alias Ecto.Changeset
 
-  @queue_name "vehicle_journies"
+  def queue_name, do: "vehicle_journies"
 
   def start_link(_opts) do
     Logger.info("STARTING DRIVING CONSUMER")
@@ -17,7 +17,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
 
     {:ok, connection} = Connection.open()
     {:ok, channel} = Channel.open(connection)
-    Queue.declare(channel, @queue_name)
+    Queue.declare(channel, queue_name())
     Connection.close(connection)
 
     Broadway.start_link(__MODULE__,
@@ -47,6 +47,9 @@ defmodule VehicleService.VehicleDrivingConsumer do
       end
     end)
   end
+
+  @impl true
+  def handle_message(_processor, %Message{status: {:failed, _}} = message, _context), do: message
 
   @impl true
   def handle_message(_processor, %Message{data: vehicle} = message, _context) do
@@ -109,7 +112,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
     vehicles
     |> Enum.map(& &1.id)
     |> Enum.each(fn vehicle_id ->
-      Basic.publish(channel, "", @queue_name, vehicle_id)
+      Basic.publish(channel, "", queue_name(), vehicle_id)
     end)
 
     Connection.close(connection)
@@ -125,11 +128,16 @@ defmodule VehicleService.VehicleDrivingConsumer do
     messages
     |> Enum.map(fn %Message{data: %Vehicle{id: vehicle_id}} -> vehicle_id end)
     |> Enum.each(fn vehicle_id ->
-      Basic.publish(channel, "", @queue_name, vehicle_id)
+      Basic.publish(channel, "", queue_name(), vehicle_id)
     end)
 
     Connection.close(connection)
 
     messages
+  end
+
+  @impl true
+  def handle_failed(messages, _context) do
+    Logger.warn("Failed to drive vehicles: #{inspect(messages)}")
   end
 end
