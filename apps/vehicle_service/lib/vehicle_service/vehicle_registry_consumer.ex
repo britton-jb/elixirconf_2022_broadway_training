@@ -41,7 +41,9 @@ defmodule VehicleService.VehicleRegistryConsumer do
 
     if changeset.valid? do
       now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-      vehicle_map = Map.merge(%{is_on_journey: true, inserted_at: now, updated_at: now}, changeset.changes)
+
+      vehicle_map =
+        Map.merge(%{is_on_journey: true, inserted_at: now, updated_at: now}, changeset.changes)
 
       Broadway.Message.put_data(message, vehicle_map)
     else

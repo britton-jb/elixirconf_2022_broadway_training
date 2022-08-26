@@ -36,8 +36,11 @@ defmodule VehicleService.VehicleRegistryConsumerTest do
   test "sends failed messages to the failed batcher", %{bad_message: message} do
     assert Repo.aggregate(Vehicle, :count) == 0
 
-    ref = Broadway.test_message(VehicleRegistryConsumer, message, metadata: %{ecto_sandbox: self()})
-    assert_receive {:ack, ^ref, [], [%{data: _out_data, status: {:failed, "Invalid changeset"}}]}, 1000
+    ref =
+      Broadway.test_message(VehicleRegistryConsumer, message, metadata: %{ecto_sandbox: self()})
+
+    assert_receive {:ack, ^ref, [], [%{data: _out_data, status: {:failed, "Invalid changeset"}}]},
+                   1000
 
     assert Repo.aggregate(Vehicle, :count) == 0
   end
