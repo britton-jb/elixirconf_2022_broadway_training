@@ -68,7 +68,7 @@ defmodule VehicleService.VehicleRegistryConsumer do
     vehicles
     |> Enum.map(& &1.id)
     |> Enum.each(fn vehicle_id ->
-      Basic.publish(channel, "", @driving_queue_name, vehicle_id)
+      Basic.publish(channel, "", @driving_queue_name, "#{vehicle_id}")
     end)
 
     Connection.close(connection)

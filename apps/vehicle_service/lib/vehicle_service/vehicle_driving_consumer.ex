@@ -38,7 +38,7 @@ defmodule VehicleService.VehicleDrivingConsumer do
       messages
       |> Enum.map(& &1.data)
       |> Vehicles.get_all()
-      |> Map.new(fn vehicle -> {vehicle.id, vehicle} end)
+      |> Map.new(fn vehicle -> {"#{vehicle.id}", vehicle} end)
 
     Enum.map(messages, fn message ->
       case Message.put_data(message, vehicles_by_id[message.data]) do
@@ -139,5 +139,6 @@ defmodule VehicleService.VehicleDrivingConsumer do
   @impl true
   def handle_failed(messages, _context) do
     Logger.warn("Failed to drive vehicles: #{inspect(messages)}")
+    messages
   end
 end
