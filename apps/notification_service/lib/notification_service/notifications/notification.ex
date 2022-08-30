@@ -3,6 +3,7 @@ defmodule NotificationService.Notifications.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
+    field :idempotency_key, :string
     field :type, Ecto.Enum, values: [vehicle: 1]
 
     timestamps()
@@ -11,7 +12,7 @@ defmodule NotificationService.Notifications.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [:type])
-    |> validate_required([:type])
+    |> cast(attrs, [:idempotency_key, :type])
+    |> validate_required([:idempotency_key, :type])
   end
 end
